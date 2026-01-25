@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>U.S.P.C - 연합특수치안공사</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Babel for in-browser compilation of React/TSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              mono: ['"Courier Prime"', 'monospace'],
+              sans: ['"Noto Sans KR"', 'sans-serif'],
+            },
+            colors: {
+              folder: {
+                light: '#fdf6e3',
+                base: '#f5e6ca',
+                dark: '#e0d0b0',
+                tab: '#eaddcf'
+              },
+              ink: {
+                black: '#1a1a1a',
+                blue: '#2c3e50',
+                red: '#c0392b'
+              }
+            },
+            backgroundImage: {
+              'paper-pattern': "url('https://www.transparenttextures.com/patterns/cardboard.png')"
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        background-color: #2f3136; /* Dark desk background */
+      }
+      .stamp-box {
+        mask-image: url('https://www.transparenttextures.com/patterns/grunge-wall.png');
+        -webkit-mask-image: url('https://www.transparenttextures.com/patterns/grunge-wall.png');
+      }
+    </style>
+    
+    <!-- Import Map for Modules -->
+    <script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.2.0",
+    "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+    "lucide-react": "https://esm.sh/lucide-react@0.292.0",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    
+    <!-- Main Application Script -->
+    <script type="text/babel" data-type="module" data-presets="react,typescript">
+      import React, { useState, useEffect } from 'react';
+      import { createRoot } from 'react-dom/client';
+      import { FileText, Users, Building, Fingerprint, Paperclip, ArrowLeft, Folder, Briefcase, Shield, ShieldAlert, HeartPulse, User, Zap } from 'lucide-react';
+
+      // ----------------------------------------------------------------------
+      // TYPES
+      // ----------------------------------------------------------------------
+      
+      enum ClearanceLevel {
+        LEVEL_1 = 'LEVEL_1', // Intern/Public
+        LEVEL_2 = 'LEVEL_2', // Standard
+        LEVEL_3 = 'LEVEL_3', // Confidential
+        LEVEL_4 = 'LEVEL_4', // Top Secret
+        LEVEL_5 = 'LEVEL_5', // Existence Denied
+      }
+
+      enum TeamId {
+        TEAM_1 = 'TEAM_1',
+        TEAM_2 = 'TEAM_2',
+        TEAM_3 = 'TEAM_3'
+      }
+
+      interface TeamInfo {
+        id: TeamId;
+        name: string;
+        engName: string;
+        description: string;
+        themeColor: string;
+      }
+
+      interface Character {
+        id: string;
+        teamId: TeamId;
+        name: string;
+        rank: string;
+        clearanceLevel: ClearanceLevel;
+        quote: string;
+        avatarUrl: string;
+        portraitUrl: string;
+        gender: string;
+        age: string;
+        race: string;
+        jobClass: string;
+        curse?: string;
+        appearance: string;
+        personality: string;
+        features: string;
+        stats: {
+          attack: number;
+          defense: number;
+          magic: number;
+          admin: number;
+        };
+        status: 'DUTY' | 'VACATION' | 'AWOL' | 'OVERTIME' | 'DISCIPLINARY';
+      }
+
+      // ----------------------------------------------------------------------
+      // CONSTANTS
+      // ----------------------------------------------------------------------
+
+      const TEAMS: Record<TeamId, TeamInfo> = {
+        [TeamId.TEAM_1]: {
+          id: TeamId.TEAM_1,
+          name: "제 1팀 [전투지원]",
+          engName: "The Hero Family",
+          description: "용사 가문 혈족으로 구성된 특수 제압 부대. 실적 1위, 민원 발생 1위, 건물 파손율 1위. 마왕의 저주(라고 주장하는 유전병)를 앓고 있다.",
+          themeColor: "text-red-800"
+        },
+        [TeamId.TEAM_2]: {
+          id: TeamId.TEAM_2,
+          name: "제 2팀 [특수수사]",
+          engName: "Elite Task Force",
+          description: "국가 공인 엘리트 요원들. 완벽한 작전 수행을 지향하지만, 1팀의 비상식적인 무력에 밀려 만년 2등이다. 1팀을 라이벌(혹은 원수)로 여긴다.",
+          themeColor: "text-blue-900"
+        },
+        [TeamId.TEAM_3]: {
+          id: TeamId.TEAM_3,
+          name: "제 3팀 [현장복구]",
+          engName: "Disaster Recovery",
+          description: "1, 2팀이 저지른 사고를 수습하는 뒷처리 전담반. 전투력은 낮으나 행정력과 정신력은 세계관 최강. 사직서를 품고 다닌다.",
+          themeColor: "text-emerald-800"
+        }
+      };
+
+      const CHARACTERS: Character[] = [
+        // --- TEAM 1: The Heroes ---
+        {
+          id: 't1_c1',
+          teamId: TeamId.TEAM_1,
+          name: '김용사',
+          rank: '팀장 (부장대우)',
+          gender: '남',
+          age: '32세',
+          race: '인간 (용사 혈통)',
+          jobClass: '히어로 / 소드마스터',
+          curse: '만성 피로와 영수증 공포증 (마왕의 저주라고 주장함)',
+          appearance: '늘 피곤에 찌들어 다크서클이 턱까지 내려옴. 정장 위에 낡은 망토를 걸치고 다님.',
+          personality: '책임감이 강하지만 그만큼 스트레스에 취약함. 퇴사를 꿈꾸지만 가문의 업보 때문에 못 함.',
+          features: '성검 엑스칼리버를 결재 서류 재단용이나 병따개로 사용함. 화나면 성검에서 빛이 남.',
+          clearanceLevel: ClearanceLevel.LEVEL_5,
+          quote: "마왕보다 시말서 쓰는 게 더 어렵다고!!",
+          avatarUrl: 'https://picsum.photos/id/1012/300/300',
+          portraitUrl: 'https://picsum.photos/id/1012/400/800',
+          stats: { attack: 99, defense: 85, magic: 20, admin: 15 },
+          status: 'OVERTIME'
+        },
+        {
+          id: 't1_c2',
+          teamId: TeamId.TEAM_1,
+          name: '이광기',
+          rank: '대리',
+          gender: '남',
+          age: '27세',
+          race: '인간 (버서커 혈통)',
+          jobClass: '버서커 / 파괴자',
+          curse: '분노 조절 장애 (야근 시 3배 증폭)',
+          appearance: '붉은 머리에 험악한 인상. 넥타이는 항상 풀어헤쳐져 있음.',
+          personality: '단순무식. 대화보다는 주먹이 먼저 나감. 그래도 팀장 말은 (가끔) 잘 듣는다.',
+          features: '건물 철거 전문. 민원인이 소리 지르면 더 크게 소리 질러서 제압함.',
+          clearanceLevel: ClearanceLevel.LEVEL_4,
+          quote: "부숴도 되는 거지? 예산 승인 났지? 진짜지?",
+          avatarUrl: 'https://picsum.photos/id/1025/300/300',
+          portraitUrl: 'https://picsum.photos/id/1025/400/800',
+          stats: { attack: 95, defense: 90, magic: 5, admin: 5 },
+          status: 'DISCIPLINARY'
+        },
+        {
+          id: 't1_c3',
+          teamId: TeamId.TEAM_1,
+          name: '박성녀',
+          rank: '주임',
+          gender: '여',
+          age: '29세',
+          race: '인간 (성녀 혈통)',
+          jobClass: '프리스트 / 전투 힐러',
+          curse: '타인의 고통에 둔감함 (물리치료 선호)',
+          appearance: '성스러운 흰색 제복을 입고 있으나 손에는 쇠몽둥이(홀리 메이스)를 들고 있음.',
+          personality: '겉으로는 상냥하고 자애로워 보이지만 속은 시커멓다. "치료 = 갱생"이라는 신념을 가짐.',
+          features: '힐을 줄 때 고통을 동반함. 좀비나 언데드 민원인을 매우 싫어함.',
+          clearanceLevel: ClearanceLevel.LEVEL_4,
+          quote: "안 죽었으면 엄살 부리지 말고 일어서세요.",
+          avatarUrl: 'https://picsum.photos/id/1027/300/300',
+          portraitUrl: 'https://picsum.photos/id/1027/400/800',
+          stats: { attack: 80, defense: 60, magic: 90, admin: 30 },
+          status: 'DUTY'
+        },
+        {
+          id: 't1_c4',
+          teamId: TeamId.TEAM_1,
+          name: '최막내',
+          rank: '신입(인턴)',
+          gender: '남',
+          age: '24세',
+          race: '인간 (방계)',
+          jobClass: '짐꾼 / 서포터',
+          curse: '존재감 희미함 (투명인간 수준)',
+          appearance: '어디에나 있을 법한 평범한 인상. 가끔 자동문이 인식 못 함.',
+          personality: '소심하고 겁이 많음. 선배들이 사고 칠 때마다 위장약을 먹음.',
+          features: '4차원 주머니(아공간)를 가지고 있어 온갖 간식과 서류를 꺼냄.',
+          clearanceLevel: ClearanceLevel.LEVEL_2,
+          quote: "팀장님, 제발 서명 좀... 그거 결재 서류예요, 냄비 받침 아니에요!",
+          avatarUrl: 'https://picsum.photos/id/1005/300/300',
+          portraitUrl: 'https://picsum.photos/id/1005/400/800',
+          stats: { attack: 30, defense: 50, magic: 40, admin: 60 },
+          status: 'DUTY'
+        },
+
+        // --- TEAM 2: The Elites ---
+        {
+          id: 't2_c1',
+          teamId: TeamId.TEAM_2,
+          name: '정엘리',
+          rank: '팀장',
+          gender: '여',
+          age: '30세',
+          race: '엘프 (하프)',
+          jobClass: '마법사 / 전략가',
+          appearance: '칼단발에 안경. 항상 정복을 흐트러짐 없이 착용함.',
+          personality: '완벽주의자. 열등감이 심해 1팀의 작은 실수도 놓치지 않고 보고서로 씀.',
+          features: '아카데미 수석 졸업. 팩트 폭력으로 상대의 멘탈을 공격함.',
+          clearanceLevel: ClearanceLevel.LEVEL_4,
+          quote: "규정 제 4조 2항 위반입니다. 1팀은 또 시말서 준비하십시오.",
+          avatarUrl: 'https://picsum.photos/id/1010/300/300',
+          portraitUrl: 'https://picsum.photos/id/1010/400/800',
+          stats: { attack: 70, defense: 50, magic: 95, admin: 90 },
+          status: 'DUTY'
+        },
+        {
+          id: 't2_c2',
+          teamId: TeamId.TEAM_2,
+          name: '강냉철',
+          rank: '과장',
+          gender: '남',
+          age: '35세',
+          race: '웨어울프 (늑대인간)',
+          jobClass: '가디언 / 행정관',
+          appearance: '키가 크고 덩치가 큼. 보름달이 뜨면 야근을 피해서 일찍 퇴근하려고 함.',
+          personality: '원칙주의자. 융통성이 없음. 9시 1분 출근은 용납하지 않음.',
+          features: '야근 결계를 칠 수 있음. 외부의 간섭을 차단하고 업무에 집중함.',
+          clearanceLevel: ClearanceLevel.LEVEL_3,
+          quote: "17시 59분입니다. 업무 보고는 메일로 하세요.",
+          avatarUrl: 'https://picsum.photos/id/1006/300/300',
+          portraitUrl: 'https://picsum.photos/id/1006/400/800',
+          stats: { attack: 85, defense: 95, magic: 20, admin: 85 },
+          status: 'DUTY'
+        },
+        {
+          id: 't2_c3',
+          teamId: TeamId.TEAM_2,
+          name: '서분석',
+          rank: '대리',
+          gender: '여',
+          age: '28세',
+          race: '안드로이드',
+          jobClass: '데이터 분석가',
+          appearance: '무표정. 눈동자에 가끔 데이터 스트림이 흘러감.',
+          personality: '감정이 메마름. 모든 상황을 확률과 숫자로 계산함.',
+          features: '1팀의 파손액을 실시간으로 계산하여 사내 전광판에 해킹해서 띄움.',
+          clearanceLevel: ClearanceLevel.LEVEL_3,
+          quote: "이번 달 1팀 파손액이 또 갱신됐군요. 흥미롭습니다.",
+          avatarUrl: 'https://picsum.photos/id/1004/300/300',
+          portraitUrl: 'https://picsum.photos/id/1004/400/800',
+          stats: { attack: 40, defense: 90, magic: 80, admin: 99 },
+          status: 'DUTY'
+        },
+        {
+          id: 't2_c4',
+          teamId: TeamId.TEAM_2,
+          name: '오잠입',
+          rank: '주임',
+          gender: '남',
+          age: '26세',
+          race: '도플갱어',
+          jobClass: '스파이 / 암살자',
+          appearance: '매번 얼굴이 바뀜. 본판 얼굴을 아는 사람이 드묾.',
+          personality: '장난기가 많고 가벼움. 타 부서 탕비실 간식을 훔쳐먹는 걸 즐김.',
+          features: '변신의 귀재. 정수기 관리 직원, 청소부 등으로 변장해 정보 수집.',
+          clearanceLevel: ClearanceLevel.LEVEL_2,
+          quote: "저 2팀 아닙니다. 그냥 지나가던 정수기 관리 직원입니다.",
+          avatarUrl: 'https://picsum.photos/id/1024/300/300',
+          portraitUrl: 'https://picsum.photos/id/1024/400/800',
+          stats: { attack: 75, defense: 40, magic: 60, admin: 50 },
+          status: 'AWOL'
+        },
+
+        // --- TEAM 3: The Cleanup ---
+        {
+          id: 't3_c1',
+          teamId: TeamId.TEAM_3,
+          name: '한해탈',
+          rank: '팀장',
+          gender: '남',
+          age: '45세',
+          race: '인간',
+          jobClass: '대마법사 (은퇴) / 행정가',
+          appearance: '깊게 패인 주름, 희끗한 머리. 항상 담배(금연초)를 물고 있음.',
+          personality: '모든 것을 초월한 해탈의 경지. 화를 내지 않음 (낼 힘이 없음).',
+          features: '현실 조작 마법을 장부 조작에 사용함. 횡령은 아니고 예산 최적화임.',
+          clearanceLevel: ClearanceLevel.LEVEL_4,
+          quote: "괜찮습니다. 어차피 이번 생은 망했으니까요...",
+          avatarUrl: 'https://picsum.photos/id/1014/300/300',
+          portraitUrl: 'https://picsum.photos/id/1014/400/800',
+          stats: { attack: 10, defense: 99, magic: 90, admin: 99 },
+          status: 'DUTY'
+        },
+        {
+          id: 't3_c2',
+          teamId: TeamId.TEAM_3,
+          name: '김복구',
+          rank: '기술주임',
+          gender: '남',
+          age: '33세',
+          race: '드워프',
+          jobClass: '마도 공학자',
+          appearance: '작지만 단단한 체구. 작업복과 공구 벨트가 피부처럼 붙어있음.',
+          personality: '투박하고 말이 거침. 하지만 일 처리는 누구보다 빠름.',
+          features: '무너진 다리를 강력 접착제와 테이프로 30분 만에 고침.',
+          clearanceLevel: ClearanceLevel.LEVEL_3,
+          quote: "일단 붙였습니다. 바람만 안 불면 버틸 겁니다.",
+          avatarUrl: 'https://picsum.photos/id/1013/300/300',
+          portraitUrl: 'https://picsum.photos/id/1013/400/800',
+          stats: { attack: 60, defense: 80, magic: 40, admin: 30 },
+          status: 'DUTY'
+        },
+        {
+          id: 't3_c3',
+          teamId: TeamId.TEAM_3,
+          name: '유상담',
+          rank: '대리',
+          gender: '여',
+          age: '29세',
+          race: '서큐버스',
+          jobClass: '최면술사 / 심리상담사',
+          appearance: '매혹적인 눈빛. 뿔과 날개는 마법으로 숨기고 다님.',
+          personality: '나긋나긋하지만 은근히 사람을 조종함. 멘탈 케어 전문가.',
+          features: '시민들의 목격담을 지우고 기억을 조작함. "비둘기"라고 믿게 만듦.',
+          clearanceLevel: ClearanceLevel.LEVEL_3,
+          quote: "고객님, 방금 보신 건 드래곤이 아니라 대형 비둘기입니다. 따라해보세요. 비둘기.",
+          avatarUrl: 'https://picsum.photos/id/1011/300/300',
+          portraitUrl: 'https://picsum.photos/id/1011/400/800',
+          stats: { attack: 20, defense: 60, magic: 85, admin: 70 },
+          status: 'DUTY'
+        },
+        {
+          id: 't3_c4',
+          teamId: TeamId.TEAM_3,
+          name: '장정산',
+          rank: '사원',
+          gender: '남',
+          age: '25세',
+          race: '고블린 (하프)',
+          jobClass: '회계사',
+          appearance: '초록빛이 도는 피부, 뾰족한 귀. 안경을 쓰고 계산기를 두드림.',
+          personality: '돈에 매우 민감함. 1원이라도 틀리면 퇴근 안 함.',
+          features: '걸어다니는 엑셀. 1팀 법인카드 내역을 보고 실신한 적이 있음.',
+          clearanceLevel: ClearanceLevel.LEVEL_1,
+          quote: "팀장님! 1팀 김용사 팀장이 또 '회식비'로 성검 연마제를 샀습니다!!",
+          avatarUrl: 'https://picsum.photos/id/1008/300/300',
+          portraitUrl: 'https://picsum.photos/id/1008/400/800',
+          stats: { attack: 5, defense: 20, magic: 30, admin: 95 },
+          status: 'OVERTIME'
+        }
+      ];
+
+      // ----------------------------------------------------------------------
+      // COMPONENTS
+      // ----------------------------------------------------------------------
+
+      interface StampProps {
+        text: string;
+        color?: 'red' | 'blue' | 'black';
+        rotate?: number;
+        className?: string;
+      }
+
+      const Stamp: React.FC<StampProps> = ({ 
+        text, 
+        color = 'red', 
+        rotate = -12,
+        className = ''
+      }) => {
+        const colorClass = {
+          red: 'border-red-700 text-red-700',
+          blue: 'border-blue-800 text-blue-800',
+          black: 'border-gray-800 text-gray-800'
+        }[color];
+
+        return (
+          <div 
+            className={`absolute z-10 select-none pointer-events-none opacity-80 mix-blend-multiply ${className}`}
+            style={{ transform: `rotate(${rotate}deg)` }}
+          >
+            <div className={`border-4 border-double ${colorClass} px-4 py-1 font-black text-xl uppercase tracking-widest stamp-box`}>
+              {text}
+            </div>
+          </div>
+        );
+      };
+
+      interface StatBarProps {
+        label: string;
+        value: number;
+        maxValue?: number;
+      }
+
+      const StatBar: React.FC<StatBarProps> = ({ label, value, maxValue = 100 }) => {
+        const percentage = Math.min((value / maxValue) * 100, 100);
+        
+        let barColor = 'bg-stone-500';
+        if (value > 80) barColor = 'bg-red-700';
+        else if (value > 50) barColor = 'bg-amber-600';
+        else if (value > 30) barColor = 'bg-blue-600';
+
+        return (
+          <div className="flex items-center gap-4 text-xs font-mono mb-2">
+            <div className="w-24 text-right font-bold text-stone-700">{label.toUpperCase()}</div>
+            <div className="flex-1 h-3 bg-stone-200 border border-stone-400 relative">
+              <div 
+                className={`h-full ${barColor} transition-all duration-500`}
+                style={{ width: `${percentage}%` }}
+              />
+              <div className="absolute top-0 left-0 w-full h-full grid grid-cols-10 pointer-events-none">
+                  {[...Array(10)].map((_, i) => (
+                      <div key={i} className="border-r border-stone-400/30 h-full"></div>
+                  ))}
+              </div>
+            </div>
+            <div className="w-8 font-bold text-stone-600">{value}</div>
+          </div>
+        );
+      };
+
+      const Header = () => (
+        <header className="bg-stone-900 text-white p-4 shadow-lg border-b-4 border-amber-600 relative overflow-hidden z-20">
+          <div className="absolute top-0 right-0 p-2 opacity-10 pointer-events-none">
+             <Building size={120} />
+          </div>
+          <div className="max-w-6xl mx-auto flex justify-between items-end">
+            <div>
+              <h1 className="text-3xl md:text-5xl font-black tracking-tighter font-sans">U.S.P.C</h1>
+              <h2 className="text-sm md:text-lg font-mono text-amber-500 tracking-widest mt-1">
+                UNION SPECIAL POLICING CORP.
+              </h2>
+              <p className="text-xs text-stone-400 mt-1">연합특수치안공사 | 대민지원국</p>
+            </div>
+            <div className="text-right hidden sm:block">
+              <div className="inline-block bg-amber-600 text-black font-bold px-2 py-1 text-xs mb-1">
+                CONFIDENTIAL
+              </div>
+              <div className="text-xs font-mono text-stone-400">
+                CENTRAL CITY HQ
+                <br />
+                AUTH: CLASS-A
+              </div>
+            </div>
+          </div>
+        </header>
+      );
+
+      const BackStamp = ({ onClick, label }: { onClick: () => void, label: string }) => (
+        <button 
+          onClick={onClick}
+          className="group flex items-center gap-2 text-stone-600 hover:text-red-700 transition-colors mb-4 md:mb-0 md:absolute md:top-6 md:left-6 z-30"
+        >
+          <div className="border-2 border-stone-400 group-hover:border-red-700 rounded-full p-2 bg-stone-100 group-hover:bg-red-50 transition-all">
+            <ArrowLeft size={20} className="transform group-hover:-translate-x-1 transition-transform" />
+          </div>
+          <span className="font-mono font-bold text-sm tracking-widest border-b-2 border-transparent group-hover:border-red-700">
+            {label}
+          </span>
+        </button>
+      );
+
+      // --- Level 1: Team Selection (Home) ---
+      const TeamSelectionView = ({ onSelectTeam }: { onSelectTeam: (id: TeamId) => void }) => {
+        return (
+          <div className="p-4 md:p-12 animate-fade-in">
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-black text-stone-800 mb-2">PERSONNEL DATABASE</h2>
+              <p className="font-mono text-stone-500">ACCESS LEVEL: AUTHORIZED ONLY</p>
+              <div className="w-20 h-1 bg-amber-600 mx-auto mt-4"></div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-6 max-w-6xl mx-auto">
+              {Object.values(TEAMS).map((team) => {
+                const Icon = team.id === TeamId.TEAM_1 ? ShieldAlert : team.id === TeamId.TEAM_2 ? Shield : HeartPulse;
+                const folderColor = team.id === TeamId.TEAM_1 ? 'bg-red-50 hover:bg-red-100 border-red-200' : 
+                                  team.id === TeamId.TEAM_2 ? 'bg-blue-50 hover:bg-blue-100 border-blue-200' : 
+                                  'bg-emerald-50 hover:bg-emerald-100 border-emerald-200';
+                const iconColor = team.id === TeamId.TEAM_1 ? 'text-red-700' : 
+                                 team.id === TeamId.TEAM_2 ? 'text-blue-700' : 
+                                 'text-emerald-700';
+
+                return (
+                  <button
+                    key={team.id}
+                    onClick={() => onSelectTeam(team.id)}
+                    className={`relative h-80 rounded-xl border-2 p-6 flex flex-col items-center justify-center text-center transition-all transform hover:-translate-y-2 hover:shadow-xl group ${folderColor}`}
+                  >
+                    <div className={`absolute top-0 left-0 w-32 h-8 -mt-8 rounded-t-lg border-t-2 border-l-2 border-r-2 bg-white/50 ${folderColor} border-inherit opacity-80`}></div>
+                    
+                    <div className={`mb-4 p-4 rounded-full bg-white shadow-sm ${iconColor}`}>
+                      <Icon size={48} strokeWidth={1.5} />
+                    </div>
+                    
+                    <h3 className={`text-xl font-black font-sans mb-1 ${team.themeColor}`}>
+                      {team.name}
+                    </h3>
+                    <p className="text-xs font-mono font-bold text-stone-500 uppercase tracking-wider mb-4">
+                      {team.engName}
+                    </p>
+                    
+                    <p className="text-sm text-stone-600 line-clamp-3 leading-relaxed px-2 font-serif italic mb-4">
+                      "{team.description}"
+                    </p>
+
+                    <div className="mt-auto pt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="bg-stone-800 text-white text-xs px-3 py-1 rounded-full font-mono">
+                        OPEN FILE
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            
+            <div className="mt-16 text-center text-stone-400 font-mono text-xs">
+              System Status: ONLINE | Server: SEOUL-03
+            </div>
+          </div>
+        );
+      };
+
+      // --- Level 2: Team Detail (Character List) ---
+      const TeamDetailView = ({ team, onBack, onSelectCharacter }: { team: TeamInfo, onBack: () => void, onSelectCharacter: (char: Character) => void }) => {
+        const teamMembers = CHARACTERS.filter(c => c.teamId === team.id);
+
+        return (
+          <div className="relative p-6 md:p-12 min-h-[600px] bg-paper-pattern bg-stone-50 shadow-inner rounded-sm">
+            <BackStamp onClick={onBack} label="RETURN TO INDEX" />
+
+            <div className="md:ml-20 mt-8 md:mt-16 mb-10 border-b-2 border-stone-300 pb-6">
+              <h2 className={`text-4xl font-black ${team.themeColor} mb-2`}>{team.name}</h2>
+              <h3 className="text-lg font-mono text-stone-500">{team.engName}</h3>
+              <p className="mt-4 text-stone-700 max-w-2xl font-serif text-lg leading-relaxed bg-white/50 p-4 border-l-4 border-stone-400">
+                {team.description}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {teamMembers.map((char) => (
+                <button
+                  key={char.id}
+                  onClick={() => onSelectCharacter(char)}
+                  className="bg-white border border-stone-300 shadow-md hover:shadow-xl hover:border-amber-500 transition-all p-4 text-left group flex flex-col relative overflow-hidden"
+                >
+                  <div className="absolute top-2 right-2 opacity-50">
+                    <Fingerprint size={32} className="text-stone-200" />
+                  </div>
+
+                  <div className="w-full aspect-square bg-stone-100 mb-4 overflow-hidden border border-stone-200 relative grayscale group-hover:grayscale-0 transition-all duration-500">
+                     <img src={char.avatarUrl} alt={char.name} className="w-full h-full object-cover" />
+                     <div className="absolute bottom-0 left-0 bg-stone-900 text-white text-xs px-2 py-1 font-mono">
+                       {char.id.toUpperCase()}
+                     </div>
+                  </div>
+                  
+                  <h4 className="font-bold text-lg text-stone-900 group-hover:text-amber-700">
+                    {char.name}
+                  </h4>
+                  <div className="text-sm font-bold text-stone-500 mb-2">{char.rank}</div>
+                  
+                  <div className="mt-auto pt-3 border-t border-stone-100">
+                    <div className="flex justify-between items-center text-xs text-stone-400 font-mono">
+                      <span>STATUS:</span>
+                      <span className={`font-bold ${
+                        char.status === 'DUTY' ? 'text-green-600' : 'text-red-500'
+                      }`}>{char.status}</span>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      };
+
+      // --- Level 3: Character Detail (File) ---
+      const CharacterDetailView = ({ character, onBack }: { character: Character, onBack: () => void }) => {
+        // Special State for "Kim Hero" (t1_c1)
+        const [isAwakened, setIsAwakened] = useState(false);
+        const isKimHero = character.id === 't1_c1';
+
+        // Reset state when character changes
+        useEffect(() => {
+          setIsAwakened(false);
+        }, [character.id]);
+
+        // Determine Display Data
+        const portraitUrl = (isKimHero && isAwakened) 
+          ? 'https://picsum.photos/seed/awakened_hero/400/800' // Different image for Awakened mode
+          : character.portraitUrl;
+
+        const stats = (isKimHero && isAwakened) 
+          ? { attack: 999, defense: 999, magic: 999, admin: 0 } // Awakened Stats
+          : character.stats;
+
+        const maxStatValue = (isKimHero && isAwakened) ? 1000 : 100;
+
+        return (
+          <div className={`bg-folder-light shadow-2xl border border-stone-300 p-6 md:p-12 relative min-h-[900px] font-mono text-stone-800 bg-paper-pattern mx-auto max-w-5xl transition-colors duration-700 ${isAwakened ? 'bg-red-50' : ''}`}>
+            <BackStamp onClick={onBack} label="RETURN TO TEAM" />
+
+            <div className="absolute top-0 right-0 p-4 md:p-8 pointer-events-none z-10">
+              <Stamp text={character.status} color={character.status === 'DUTY' ? 'blue' : 'red'} rotate={15} />
+            </div>
+
+            <div className="border-b-4 border-double border-stone-800 pb-4 mb-8 mt-4 md:mt-12 flex flex-col md:flex-row justify-between items-start md:items-end">
+              <div>
+                <div className="flex items-center gap-4">
+                  <h2 className={`text-4xl font-bold font-sans tracking-tight transition-colors duration-300 ${isAwakened ? 'text-red-600 drop-shadow-md' : 'text-stone-900'}`}>
+                    {character.name} {isAwakened && "(각성)"}
+                  </h2>
+                  
+                  {isKimHero && (
+                    <button 
+                      onClick={() => setIsAwakened(!isAwakened)}
+                      className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold border-2 transition-all shadow-sm ${isAwakened ? 'bg-red-600 text-white border-red-800 animate-pulse' : 'bg-stone-200 text-stone-600 border-stone-400 hover:bg-stone-300'}`}
+                    >
+                      <Zap size={14} fill={isAwakened ? "currentColor" : "none"} />
+                      {isAwakened ? "봉인 중..." : "봉인 해제"}
+                    </button>
+                  )}
+                </div>
+                
+                <div className="text-sm font-bold text-stone-600 mt-1 flex items-center gap-2">
+                    <Users size={14} />
+                    TEAM: {TEAMS[character.teamId].name}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              <div className="col-span-1 lg:col-span-4">
+                <div className={`bg-white p-3 shadow-lg border border-stone-200 transform transition-transform duration-500 mb-6 relative ${isAwakened ? 'rotate-1 scale-105 border-red-500' : '-rotate-1'}`}>
+                   <Paperclip className="absolute -top-3 -left-2 text-stone-400 w-10 h-10" />
+                   <div className="w-full aspect-[2/3] overflow-hidden bg-stone-200 relative">
+                      {isAwakened && <div className="absolute inset-0 bg-red-500 mix-blend-overlay opacity-20 pointer-events-none z-10 animate-pulse"></div>}
+                      
+                      <img 
+                        src={portraitUrl} 
+                        alt={character.name} 
+                        className={`w-full h-full object-cover transition-all duration-700 ${isAwakened ? 'grayscale-0 contrast-125' : 'grayscale contrast-125 sepia-[.2]'}`} 
+                      />
+                   </div>
+                   <div className="text-center text-xs font-mono mt-2 text-stone-400">
+                     OFFICIAL PERSONNEL RECORD
+                   </div>
+                </div>
+                
+                 <div className={`bg-stone-100 border-l-4 p-4 mb-4 italic text-stone-700 font-serif text-sm shadow-sm transition-colors ${isAwakened ? 'border-red-600 bg-red-50' : 'border-amber-600'}`}>
+                   "{isAwakened ? "다 부숴버리겠어... 야근도... 마왕도..." : character.quote}"
+                 </div>
+              </div>
+
+              <div className="col-span-1 lg:col-span-8 space-y-6">
+                 
+                 <div className="bg-white border border-stone-300 p-4 shadow-sm">
+                    <h3 className="font-bold text-lg border-b-2 border-stone-800 mb-3 inline-block">
+                      기본 신상 정보 (Basic Information)
+                    </h3>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                       <div className="flex flex-col">
+                          <span className="text-stone-500 text-xs">이름 (Name)</span>
+                          <span className="font-bold">{character.name}</span>
+                       </div>
+                       <div className="flex flex-col">
+                          <span className="text-stone-500 text-xs">성별 (Gender)</span>
+                          <span className="font-bold">{character.gender}</span>
+                       </div>
+                       <div className="flex flex-col">
+                          <span className="text-stone-500 text-xs">나이 (Age)</span>
+                          <span className="font-bold">{character.age}</span>
+                       </div>
+                       <div className="flex flex-col">
+                          <span className="text-stone-500 text-xs">종족 (Race)</span>
+                          <span className="font-bold">{character.race}</span>
+                       </div>
+                       <div className="flex flex-col">
+                          <span className="text-stone-500 text-xs">클래스 (Class)</span>
+                          <span className="font-bold">{character.jobClass}</span>
+                       </div>
+                    </div>
+                 </div>
+
+                 {character.curse && (
+                    <div className="bg-red-50 border border-red-200 p-4 text-red-900">
+                      <h3 className="font-bold text-sm mb-1 flex items-center gap-2">
+                         <ShieldAlert size={14} />
+                         특이 형질: 저주 (Curse Status)
+                      </h3>
+                      <p className="text-sm font-bold">{character.curse}</p>
+                    </div>
+                 )}
+
+                 <div className="space-y-4">
+                    <div className="bg-white/50 p-3 border-l-2 border-stone-400">
+                       <h4 className="font-bold text-stone-600 text-xs mb-1 uppercase">외관 (Appearance)</h4>
+                       <p className="text-sm text-stone-800 leading-relaxed">{character.appearance}</p>
+                    </div>
+                    <div className="bg-white/50 p-3 border-l-2 border-stone-400">
+                       <h4 className="font-bold text-stone-600 text-xs mb-1 uppercase">성격 (Personality)</h4>
+                       <p className="text-sm text-stone-800 leading-relaxed">{character.personality}</p>
+                    </div>
+                    <div className="bg-white/50 p-3 border-l-2 border-stone-400">
+                       <h4 className="font-bold text-stone-600 text-xs mb-1 uppercase">특징 (Features)</h4>
+                       <p className="text-sm text-stone-800 leading-relaxed">{character.features}</p>
+                    </div>
+                 </div>
+
+                 <div className={`p-4 bg-white border border-stone-200 mt-4 transition-all duration-500 ${isAwakened ? 'ring-2 ring-red-400 shadow-xl' : ''}`}>
+                   <h3 className="font-bold text-lg border-b-2 border-stone-800 mb-4 inline-block">
+                     직무 능력 평가표 (Performance Stats)
+                   </h3>
+                   <div className="space-y-3">
+                     <StatBar label="공격력" value={stats.attack} maxValue={maxStatValue} />
+                     <StatBar label="방어력" value={stats.defense} maxValue={maxStatValue} />
+                     <StatBar label="마력" value={stats.magic} maxValue={maxStatValue} />
+                     <StatBar label="행정력" value={stats.admin} maxValue={maxStatValue} />
+                   </div>
+                 </div>
+                 
+                 <div className="mt-8 flex justify-end">
+                    <div className="text-center">
+                       <div className="w-40 h-16 border-b border-stone-800 mb-2 font-handwriting text-2xl text-blue-900 transform -rotate-6 pt-4">
+                          Approved
+                       </div>
+                       <div className="text-xs uppercase font-bold tracking-wider">Director Signature</div>
+                    </div>
+                 </div>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      // --- Main App Component ---
+
+      const App = () => {
+        const [activeTeamId, setActiveTeamId] = useState(null);
+        const [activeCharacterId, setActiveCharacterId] = useState(null);
+
+        const activeTeam = activeTeamId ? TEAMS[activeTeamId] : null;
+        const activeCharacter = activeCharacterId ? CHARACTERS.find(c => c.id === activeCharacterId) : null;
+
+        const handleSelectTeam = (id) => {
+          setActiveTeamId(id);
+          setActiveCharacterId(null);
+        };
+
+        const handleSelectCharacter = (char) => {
+          setActiveCharacterId(char.id);
+        };
+
+        const handleBack = () => {
+          if (activeCharacterId) {
+            setActiveCharacterId(null); // Go back to team view
+          } else if (activeTeamId) {
+            setActiveTeamId(null); // Go back to home
+          }
+        };
+
+        return (
+          <div className="min-h-screen bg-stone-800 flex flex-col font-sans selection:bg-amber-200 selection:text-amber-900 pb-10">
+            <Header />
+            
+            <main className="flex-1 max-w-7xl mx-auto w-full p-4 mt-4">
+              <div className="min-h-full perspective-1000">
+                
+                {!activeTeamId && (
+                  <TeamSelectionView onSelectTeam={handleSelectTeam} />
+                )}
+
+                {activeTeamId && !activeCharacterId && activeTeam && (
+                  <TeamDetailView 
+                    team={activeTeam} 
+                    onBack={handleBack} 
+                    onSelectCharacter={handleSelectCharacter} 
+                  />
+                )}
+
+                {activeCharacterId && activeCharacter && (
+                  <CharacterDetailView 
+                    character={activeCharacter} 
+                    onBack={handleBack} 
+                  />
+                )}
+
+              </div>
+            </main>
+          </div>
+        );
+      };
+
+      // --- RENDER ---
+      const rootElement = document.getElementById('root');
+      if (!rootElement) {
+        throw new Error("Could not find root element to mount to");
+      }
+
+      const root = createRoot(rootElement);
+      root.render(
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>
+      );
+    </script>
+  </body>
+</html>
