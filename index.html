@@ -70,7 +70,7 @@
             <h2 class="text-sm md:text-lg font-mono text-amber-500 tracking-widest mt-1">
               UNION SPECIAL POLICING CORP.
             </h2>
-            <p class="text-xs text-stone-400 mt-1">연합특수치안공사 | 대민지원국</p>
+            <p class="text-xs text-stone-400 mt-1">연합특수치안공사</p>
           </div>
           <!-- Removed Security/Confidential Badges from Header -->
         </div>
@@ -98,8 +98,8 @@
             'TEAM_2': {
                 id: 'TEAM_2',
                 name: "제 2팀",
-                engName: "TEAM 2",
-                description: "국가 공인 엘리트 요원들. 1팀에 밀려 만년 2등.",
+                engName: "TEAM2",
+                description: "국가 공인 엘리트 요원들. 1팀의 비상식적인 무력에 밀려 만년 2등이다.",
                 themeColor: "text-blue-900",
                 icon: "shield",
                 folderClass: "bg-blue-50 hover:bg-blue-100 border-blue-200",
@@ -109,7 +109,7 @@
                 id: 'TEAM_3',
                 name: "제 3팀",
                 engName: "TEAM 3",
-                description: "뒤처리 전담반. 정신력만은 세계관 최강.",
+                description: "뒷처리 전담반. 행정력과 정신력만은 최강.",
                 themeColor: "text-emerald-800",
                 icon: "heart-pulse",
                 folderClass: "bg-emerald-50 hover:bg-emerald-100 border-emerald-200",
@@ -120,26 +120,30 @@
         const CHARACTERS = [
             // TEAM 1
             {
-                id: 'CA', teamId: 'TEAM_1', name: '카스텔', rank: 'Tank', gender: '여', age: '24', race: '인간', jobClass: '대검사',
-                curse: '희생의 저주-반경 1km내의 모든 적의가 카스텔을 향한다.<br>물리적, 정신적 적의가 전부 포함된다.', appearance: '늘 피곤에 찌들어 다크서클이 턱까지 내려옴. 정장 위에 낡은 망토를 걸치고 다님.', personality: '책임감이 강하지만 그만큼 스트레스에 취약함. 퇴사를 꿈꾸지만 가문의 업보 때문에 못 함.', features: '성검 엑스칼리버를 결재 서류 재단용이나 병따개로 사용함. 화나면 성검에서 빛이 남.',
+                id: 'CA', teamId: 'TEAM_1', name: '카스텔', rank: 'TANK', gender: '여', age: '24세', race: '인간', jobClass: '대검사',
+                curse: '만성 피로와 영수증 공포증 (마왕의 저주라고 주장함)', curseLabel: '저주',
+                appearance: '늘 피곤에 찌들어 다크서클이 턱까지 내려옴. 정장 위에 낡은 망토를 걸치고 다님.', personality: '책임감이 강하지만 그만큼 스트레스에 취약함. 퇴사를 꿈꾸지만 가문의 업보 때문에 못 함.', features: '성검 엑스칼리버를 결재 서류 재단용이나 병따개로 사용함. 화나면 성검에서 빛이 남.',
                 quote: "마왕보다 시말서 쓰는 게 더 어렵다고!!", avatarUrl: 'https://picsum.photos/id/1012/300/300', portraitUrl: 'https://picsum.photos/id/1012/400/800',
                 stats: { attack: 99, defense: 85, magic: 20, admin: 15 }, status: 'OVERTIME'
             },
             {
                 id: 't1_c2', teamId: 'TEAM_1', name: '이광기', rank: '대리', gender: '남', age: '27세', race: '인간 (버서커 혈통)', jobClass: '버서커 / 파괴자',
-                curse: '분노 조절 장애 (야근 시 3배 증폭)', appearance: '붉은 머리에 험악한 인상. 넥타이는 항상 풀어헤쳐져 있음.', personality: '단순무식. 대화보다는 주먹이 먼저 나감. 그래도 팀장 말은 (가끔) 잘 듣는다.', features: '건물 철거 전문. 민원인이 소리 지르면 더 크게 소리 질러서 제압함.',
+                curse: '분노 조절 장애 (야근 시 3배 증폭)', curseLabel: '저주',
+                appearance: '붉은 머리에 험악한 인상. 넥타이는 항상 풀어헤쳐져 있음.', personality: '단순무식. 대화보다는 주먹이 먼저 나감. 그래도 팀장 말은 (가끔) 잘 듣는다.', features: '건물 철거 전문. 민원인이 소리 지르면 더 크게 소리 질러서 제압함.',
                 quote: "부숴도 되는 거지? 예산 승인 났지? 진짜지?", avatarUrl: 'https://picsum.photos/id/1025/300/300', portraitUrl: 'https://picsum.photos/id/1025/400/800',
                 stats: { attack: 95, defense: 90, magic: 5, admin: 5 }, status: 'DISCIPLINARY'
             },
             {
                 id: 't1_c3', teamId: 'TEAM_1', name: '박성녀', rank: '주임', gender: '여', age: '29세', race: '인간 (성녀 혈통)', jobClass: '프리스트 / 전투 힐러',
-                curse: '타인의 고통에 둔감함 (물리치료 선호)', appearance: '성스러운 흰색 제복을 입고 있으나 손에는 쇠몽둥이(홀리 메이스)를 들고 있음.', personality: '겉으로는 상냥하고 자애로워 보이지만 속은 시커멓다. "치료 = 갱생"이라는 신념을 가짐.', features: '힐을 줄 때 고통을 동반함. 좀비나 언데드 민원인을 매우 싫어함.',
+                curse: '타인의 고통에 둔감함 (물리치료 선호)', curseLabel: '저주',
+                appearance: '성스러운 흰색 제복을 입고 있으나 손에는 쇠몽둥이(홀리 메이스)를 들고 있음.', personality: '겉으로는 상냥하고 자애로워 보이지만 속은 시커멓다. "치료 = 갱생"이라는 신념을 가짐.', features: '힐을 줄 때 고통을 동반함. 좀비나 언데드 민원인을 매우 싫어함.',
                 quote: "안 죽었으면 엄살 부리지 말고 일어서세요.", avatarUrl: 'https://picsum.photos/id/1027/300/300', portraitUrl: 'https://picsum.photos/id/1027/400/800',
                 stats: { attack: 80, defense: 60, magic: 90, admin: 30 }, status: 'DUTY'
             },
             {
                 id: 't1_c4', teamId: 'TEAM_1', name: '최막내', rank: '신입(인턴)', gender: '남', age: '24세', race: '인간 (방계)', jobClass: '짐꾼 / 서포터',
-                curse: '존재감 희미함 (투명인간 수준)', appearance: '어디에나 있을 법한 평범한 인상. 가끔 자동문이 인식 못 함.', personality: '소심하고 겁이 많음. 선배들이 사고 칠 때마다 위장약을 먹음.', features: '4차원 주머니(아공간)를 가지고 있어 온갖 간식과 서류를 꺼냄.',
+                curse: '존재감 희미함 (투명인간 수준)', curseLabel: '저주',
+                appearance: '어디에나 있을 법한 평범한 인상. 가끔 자동문이 인식 못 함.', personality: '소심하고 겁이 많음. 선배들이 사고 칠 때마다 위장약을 먹음.', features: '4차원 주머니(아공간)를 가지고 있어 온갖 간식과 서류를 꺼냄.',
                 quote: "팀장님, 제발 서명 좀... 그거 결재 서류예요, 냄비 받침 아니에요!", avatarUrl: 'https://picsum.photos/id/1005/300/300', portraitUrl: 'https://picsum.photos/id/1005/400/800',
                 stats: { attack: 30, defense: 50, magic: 40, admin: 60 }, status: 'DUTY'
             },
@@ -344,11 +348,12 @@
             const imageEffects = isAwakened ? 'rotate-1 scale-105 border-red-500' : '-rotate-1';
             const imageFilter = isAwakened ? 'grayscale-0 contrast-125' : 'grayscale contrast-125 sepia-[.2]';
 
+            const curseLabel = char.curseLabel || '특이 사항';
             const curseSection = char.curse ? `
                 <div class="bg-red-50 border border-red-200 p-4 text-red-900">
                     <h3 class="font-bold text-sm mb-1 flex items-center gap-2">
                          <i data-lucide="shield-alert" width="14" height="14"></i>
-                         저주:
+                         ${curseLabel}
                     </h3>
                     <p class="text-sm font-bold">${char.curse}</p>
                 </div>
