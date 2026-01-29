@@ -116,6 +116,43 @@
             }
         };
 
+
+    <!-- Application Logic -->
+    <script>
+        // --- DATA ---
+        const TEAMS = {
+            'TEAM_1': {
+                id: 'TEAM_1',
+                name: "제 1팀",
+                engName: "TEAM 1",
+                description: "용사 가문 혈족으로 구성된 특수 제압 부대. 실적 1위, 민원 발생 1위.",
+                themeColor: "text-red-800",
+                icon: "shield-alert",
+                folderClass: "bg-red-50 hover:bg-red-100 border-red-200",
+                iconClass: "text-red-700"
+            },
+            'TEAM_2': {
+                id: 'TEAM_2',
+                name: "제 2팀",
+                engName: "TEAM2",
+                description: "국가 공인 엘리트 요원들. 1팀의 비상식적인 무력에 밀려 만년 2등이다.",
+                themeColor: "text-blue-900",
+                icon: "shield",
+                folderClass: "bg-blue-50 hover:bg-blue-100 border-blue-200",
+                iconClass: "text-blue-700"
+            },
+            'TEAM_3': {
+                id: 'TEAM_3',
+                name: "제 3팀",
+                engName: "TEAM 3",
+                description: "뒷처리 전담반. 행정력과 정신력만은 최강.",
+                themeColor: "text-emerald-800",
+                icon: "heart-pulse",
+                folderClass: "bg-emerald-50 hover:bg-emerald-100 border-emerald-200",
+                iconClass: "text-emerald-700"
+            }
+        };
+
         const CHARACTERS = [
             // TEAM 1
             {
@@ -198,7 +235,7 @@
             }
         ];
 
-        // --- STATE ---
+// --- STATE ---
         let selectedTeamId = null;
         let selectedCharacterId = null;
         let isKimHeroAwakened = false;
